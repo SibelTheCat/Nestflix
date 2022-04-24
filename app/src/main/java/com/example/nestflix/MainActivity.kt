@@ -13,10 +13,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.nestflix.navigation.NestflixNavigation
 import com.example.nestflix.ui.theme.NestflixTheme
 import dagger.hilt.android.AndroidEntryPoint
+import org.videolan.libvlc.MediaPlayer
 
 //dependency container -> we get the dependencies here
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {

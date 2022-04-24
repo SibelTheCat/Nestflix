@@ -87,4 +87,7 @@ dependencies {
 
     // VLC player
     implementation "org.videolan.android:libvlc-all:$vlc_version"
+
+    //Kapture
+    implementation "io.github.kaustubhpatange:kapture:$kapture_version"
 }

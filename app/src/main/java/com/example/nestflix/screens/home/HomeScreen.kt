@@ -82,7 +82,7 @@ fun HomeScreen(navController: NavController = rememberNavController()){
                     .padding(top = 70.dp)
                     .padding(20.dp)
                     .fillMaxWidth()
-                    .clickable { navController.navigate(route = NestflixScreens.GalleryScreen.name) },
+                    .clickable { navController.navigate(route = NestflixScreens.StreamScreen.name) },
                 shape = RoundedCornerShape(corner = CornerSize(15.dp)),
                 elevation = 4.dp
             ) {

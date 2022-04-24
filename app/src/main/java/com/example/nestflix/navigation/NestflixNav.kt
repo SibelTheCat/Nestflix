@@ -8,6 +8,7 @@ import com.example.nestflix.screens.gallery.GalleryScreen
 import com.example.nestflix.screens.home.HomeScreen
 import com.example.nestflix.screens.setup.SetUpScreen
 import com.example.nestflix.screens.stream.StreamScreen
+import org.videolan.libvlc.MediaPlayer
 
 @Composable
 fun NestflixNavigation(){

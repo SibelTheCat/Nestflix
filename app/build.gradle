@@ -90,4 +90,7 @@ dependencies {
 
     //Kapture
     implementation "io.github.kaustubhpatange:kapture:$kapture_version"
+
+    //View Model
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$viewmodel_version"
 }

@@ -73,7 +73,7 @@ fun StreamScreen(navController: NavController = rememberNavController(), mediaPl
 
     var libVLC: LibVLC?
    // var mediaPlayer: MediaPlayer?
-    val testurl = "rtsp://rtsp.stream/pattern"
+    val testurl = "tcp/h264://10.0.0.134:55555"
     //"rtsp://rtsp.stream/pattern"
     //"tcp/h264://10.0.0.134:55555"
     val raspberry = "rtsp://10.0.0.134:3366/stream1"

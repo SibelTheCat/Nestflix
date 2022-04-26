@@ -47,9 +47,11 @@ fun SetUpScreen(navController: NavController = rememberNavController()){
     ) {
         Column(){
             AddIPAdress(ipAddress = ipAddress, textGetsEntered = {
-                if (it.all {char ->
-                        char.isDigit() //|| char.equals(".")
-                    })
+               // if (it.all //{
+                            //char ->
+                       // char.isDigit() //|| char.equals(".")
+                    //}
+          //  )
                         ipAddress = it
             })
             SettingsButton(Modifier.padding(5.dp ), text = "safe", onClick = { /*TODO*/ })

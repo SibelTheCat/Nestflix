@@ -16,10 +16,10 @@ data class BirdNotes(
     val pathToPicture : String,
 
     @ColumnInfo()
-    val title: String,
+    var title: String,
 
     @ColumnInfo()
-    val description : String,
+    var description : String,
 
     @ColumnInfo()
     val entryDate: Date = Date.from(Instant.now())

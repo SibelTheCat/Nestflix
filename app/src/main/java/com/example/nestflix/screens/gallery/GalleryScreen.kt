@@ -1,12 +1,16 @@
 package com.example.nestflix.screens.gallery
 
 import android.R.attr.maxLines
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -17,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
@@ -25,14 +30,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
 import com.example.nestflix.R
 import com.example.nestflix.model.BirdNotes
+import com.example.nestflix.viewmodel.BirdNotesViewModel
+import java.io.File
 
 
 @Composable
-fun GalleryScreen(navController: NavController = rememberNavController()) {
+fun GalleryScreen(navController: NavController = rememberNavController(),
+                  birdNoteViewModel: BirdNotesViewModel = viewModel(),
+                  birdnotelist: List<BirdNotes> = birdNoteViewModel.getAllBirdNotes()) {
 
     Scaffold(
         topBar = {
@@ -51,11 +65,17 @@ fun GalleryScreen(navController: NavController = rememberNavController()) {
             }
         }
     ) {
-    DisplayBirdNote(birdNotes = BirdNotes(pathToPicture = "dfasf", title = "Test 1", description = "this bird just sleeps all day hjghghjgjhgjkhghjghjkghjgjghghghjghghjghjghjghjghjghjghghjghjghjghjghjghjgjgkjghj   jkhj hj k hjhj jhj   jhj jh  hjhl jh jhjgjhghgj jgjkgjgjgjk hjkhjlkhkhkhhjjj  jhkljhjhjkh  jhjkhjkh  kjhjkhjkhkjl kjhkjlhjkh jhjkhjkhjkhjkh hjhjkhjhjhlk hjkh jh h jh jh jhjlh  jhkjhjkhkjhlkjhlj khjlhlkhlkjh jhjhjh jhlhj"))
+        LazyColumn {
+            items(birdnotelist) { bird ->
+                DisplayBirdNote(bird, birdNoteViewModel = birdNoteViewModel)
+            }
+        }
+
 }}
 
 @Composable
-fun DisplayBirdNote(birdNotes: BirdNotes) {
+fun DisplayBirdNote(birdNotes: BirdNotes,
+                    birdNoteViewModel: BirdNotesViewModel = viewModel()) {
 
     val openDialog = remember { mutableStateOf(false) }
     var text by remember { mutableStateOf(birdNotes.description) }
@@ -76,14 +96,17 @@ fun DisplayBirdNote(birdNotes: BirdNotes) {
         elevation = 4.dp
     ) {
         Row(Modifier.padding(8.dp)) {
-            Image(
-                painter = painterResource(id = R.drawable.nestflixlogo),
+
+           //https://stackoverflow.com/questions/70825508/load-local-image-with-jetpack-compose
+            Image(rememberAsyncImagePainter(File(birdNotes.pathToPicture)),
                 contentDescription = "bird screenshot",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(170.dp)
+                    .size(150.dp,250.dp)
+                    //.size(170.dp)
                     .border(width = 2.dp, color = MaterialTheme.colors.secondary)
             )
+
             Column(modifier = Modifier
                 .align(alignment = Alignment.Top)
                 .padding(5.dp)) {
@@ -148,12 +171,16 @@ fun DisplayBirdNote(birdNotes: BirdNotes) {
                         Spacer(Modifier.size(5.dp))
                         TextField(
                             value = title,
-                            onValueChange = { title = it }
+                            onValueChange = { title = it
+                           birdNoteViewModel.updateTitle(birdNotes = birdNotes, newTitle = title )
+
+                                }
                         )
                         Spacer(Modifier.size(5.dp))
                         TextField(
                             value = text,
-                            onValueChange = { text = it }
+                            onValueChange = { text = it
+                                birdNoteViewModel.updateDescription(birdNotes = birdNotes, newDes = text )}
                         )
                     }
                 },

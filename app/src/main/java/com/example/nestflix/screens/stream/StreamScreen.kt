@@ -38,6 +38,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.nestflix.R
+import com.example.nestflix.model.BirdNotes
+import com.example.nestflix.viewmodel.BirdNotesViewModel
 import okhttp3.internal.http2.Http2Reader
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
@@ -56,7 +58,10 @@ import kotlin.math.roundToInt
 //var mediaPlayer: MediaPlayer? = null
 
 @Composable
-fun StreamScreen(navController: NavController = rememberNavController(), mediaPlayer: MediaPlayer? = null) {
+fun StreamScreen(navController: NavController = rememberNavController(),
+                 mediaPlayer: MediaPlayer? = null,
+                 birdNoteViewModel: BirdNotesViewModel = viewModel()
+) {
     var mediaPlayer: MediaPlayer? = null
 
     var image : Bitmap? = null
@@ -156,6 +161,7 @@ fun StreamScreen(navController: NavController = rememberNavController(), mediaPl
                             text = saveImageToExternalStorage(bitmap = image).toString()
                             //https://developer.android.com/studio/debug/am-logcat
                             Log.e("save", text)
+                            savePictureAsNewBirdnote(path = text, birdNoteViewModel = birdNoteViewModel)
 
                         }) {Column{
                         image?.let { it1 -> Image(bitmap = it1.asImageBitmap(), contentDescription = "") }
@@ -264,4 +270,7 @@ fun saveImageToExternalStorage(bitmap:Bitmap?):Uri{
     return Uri.parse(file.absolutePath)
 }
 
+fun savePictureAsNewBirdnote(path : String, birdNoteViewModel: BirdNotesViewModel){
+    birdNoteViewModel.addBirdNote(BirdNotes(pathToPicture = path, title = "", description = ""))
 
+}

@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import com.example.nestflix.data.BirdNoteDatabase
 import com.example.nestflix.data.BirdNoteDatabaseDao
-import com.example.nestflix.data.SettingsDatabase
-import com.example.nestflix.data.SettingsDatabaseDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,10 +21,6 @@ object AppModule {
     fun provideBirdNoteDatabaseDao(birdNoteDatabase : BirdNoteDatabase): BirdNoteDatabaseDao
     = birdNoteDatabase.birdnoteDao()  // the provide will set up a Singleton
 
-    @Singleton
-    @Provides
-    fun provideSettingsNoteDatabaseDao(settingsDatabase : SettingsDatabase): SettingsDatabaseDao
-            = settingsDatabase.settingsDao()
 
     @Singleton
     @Provides

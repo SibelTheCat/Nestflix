@@ -1,15 +1,24 @@
 package com.example.nestflix.screens.stream
 
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.PixelFormat
 import android.net.Uri
 import android.os.Environment.*
+import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
+import android.view.PixelCopy
+import android.view.SurfaceView
+import android.view.View
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,6 +72,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                  birdNoteViewModel: BirdNotesViewModel = viewModel()
 ) {
     var mediaPlayer: MediaPlayer? = null
+    var myBirdVideo : View? = null
 
     var image : Bitmap? = null
     var text : String = "test"
@@ -78,7 +88,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
 
     var libVLC: LibVLC?
    // var mediaPlayer: MediaPlayer?
-    val testurl = "tcp/h264://10.0.0.134:55555"
+    val testurl = "rtsp://rtsp.stream/pattern"
     //"rtsp://rtsp.stream/pattern"
     //"tcp/h264://10.0.0.134:55555"
     val raspberry = "rtsp://10.0.0.134:3366/stream1"
@@ -114,14 +124,18 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                 Text(text = "Capture Screenshot", color = Color.White)},
                 onClick = {
 
-                    val bounds = capturingViewBounds ?: return@ExtendedFloatingActionButton
+                 /*   val bounds = capturingViewBounds ?: return@ExtendedFloatingActionButton
                         image = Bitmap.createBitmap(
                         bounds.width.roundToInt(), bounds.height.roundToInt(),
                         Bitmap.Config.ARGB_8888
                     ).applyCanvas {
                         this.translate((-bounds.left), (-bounds.top))
                         view.draw(this)
-                    }
+                    }*/
+                     image = getBitmapFromView(myBirdVideo as VLCVideoLayout)
+                    Log.e("bildtest", image.toString())
+
+
 
                     openDialog.value = true
                           },
@@ -209,6 +223,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                         mediaPlayer = MediaPlayer(libVLC)
                         mediaPlayer?.attachViews(this, null, false, false)
 
+
                         try {
                             Media(libVLC, Uri.parse(testurl)).apply {
                                 setHWDecoderEnabled(true, false)
@@ -226,6 +241,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                 modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth()
+                    .border(BorderStroke(width = 15.dp,color = MaterialTheme.colors.secondary))
                   //  .onGloballyPositioned {
                     //    capturingViewBounds = it.boundsInRoot()
                     //)  }
@@ -234,8 +250,13 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                 // this function is used to handle all updates of the composition tree
                 // handle state objects here
                 update = { view ->
-                    Log.i("update", view.toString())
+                    Log.i("update", view.height.toString())
+                    myBirdVideo = view
+
+
                 }
+
+
             )
 
         }}
@@ -271,6 +292,43 @@ fun saveImageToExternalStorage(bitmap:Bitmap?):Uri{
 }
 
 fun savePictureAsNewBirdnote(path : String, birdNoteViewModel: BirdNotesViewModel){
-    birdNoteViewModel.addBirdNote(BirdNotes(pathToPicture = path, title = "", description = ""))
+    birdNoteViewModel.addBirdNote(BirdNotes(pathToPicture = path, title = "", description = ""))}
 
+
+    fun getBitmapFromView(view: View): Bitmap? {
+        var bitmap =
+            Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
+        var canvas = Canvas(bitmap)
+       // canvas.drawColor(defaultColor)
+        view.draw(canvas)
+        return bitmap
+    }
+
+
+fun getBitMapFromSurfaceView(videoView: SurfaceView, callback: (Bitmap?) -> Unit) {
+    val bitmap: Bitmap = Bitmap.createBitmap(
+        videoView.width,
+        videoView.height,
+        Bitmap.Config.ARGB_8888
+    );
+    try {
+        // Create a handler thread to offload the processing of the image.
+        val handlerThread = HandlerThread("PixelCopier");
+        handlerThread.start();
+        PixelCopy.request(
+            videoView, bitmap,
+            PixelCopy.OnPixelCopyFinishedListener { copyResult ->
+                if (copyResult == PixelCopy.SUCCESS) {
+                    callback(bitmap)
+                }
+                handlerThread.quitSafely();
+            },
+            Handler(handlerThread.looper)
+        )
+    } catch (e: IllegalArgumentException) {
+        callback(null)
+        // PixelCopy may throw IllegalArgumentException, make sure to handle it
+        e.printStackTrace()
+    }
 }
+

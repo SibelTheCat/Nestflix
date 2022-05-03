@@ -24,4 +24,5 @@ interface BirdNoteDatabaseDao {
 
     @Delete
    suspend fun deleteNote(birdNote: BirdNotes)
+
 }

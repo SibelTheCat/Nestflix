@@ -1,7 +1,5 @@
 package com.example.nestflix.screens.gallery
 
-import android.R.attr.maxLines
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -10,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -19,34 +16,27 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
-import com.example.nestflix.R
 import com.example.nestflix.model.BirdNotes
 import com.example.nestflix.viewmodel.BirdNotesViewModel
 import java.io.File
 
 
 @Composable
-fun GalleryScreen(navController: NavController = rememberNavController(),
-                  birdNoteViewModel: BirdNotesViewModel = viewModel(),
-                  birdnotelist: List<BirdNotes> = birdNoteViewModel.getAllBirdNotes()) {
+fun GalleryScreen(
+    navController: NavController = rememberNavController(),
+    birdNoteViewModel: BirdNotesViewModel = viewModel(),
+    birdnotelist: List<BirdNotes> = birdNoteViewModel.birdNotesList.collectAsState().value,
+) {
 
     Scaffold(
         topBar = {
@@ -78,19 +68,14 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
                     birdNoteViewModel: BirdNotesViewModel = viewModel()) {
 
     val openDialog = remember { mutableStateOf(false) }
-    var text by remember { mutableStateOf(birdNotes.description) }
+    var description by remember { mutableStateOf(birdNotes.description) }
     var title by remember { mutableStateOf(birdNotes.title) }
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp)
-            //damit wenn Textfeld ausgefahren wird die Card größer ist
-            // .animateContentSize()
-
-            //wenn auf die Card geklickt wird, wird die übergebene Funkton "onItemClick"
-            // mit der movie id auf des geklckten Films aufgerufen
-            .clickable { },
+            .padding(4.dp),
+           // .clickable { },
 
         shape = RoundedCornerShape(corner = CornerSize(15.dp)),
         elevation = 4.dp
@@ -102,7 +87,7 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
                 contentDescription = "bird screenshot",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .size(150.dp,250.dp)
+                    .size(150.dp, 250.dp)
                     //.size(170.dp)
                     .border(width = 2.dp, color = MaterialTheme.colors.secondary)
             )
@@ -129,7 +114,13 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
 
                 )
 
-              ExpandingText(text = birdNotes.description, maxExLines =6 )
+              //  Text(text = "${birdNotes.description}")
+
+                //Das remember geht hier nicht?
+
+                var textForFunktion = birdNotes.description
+
+              ExpandingText(text = textForFunktion, maxExLines =6 )
                 Spacer(Modifier.size(5.dp))
                OutlinedButton(
                    border = BorderStroke(width = 1.dp,color = MaterialTheme.colors.secondary),
@@ -172,15 +163,14 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
                         TextField(
                             value = title,
                             onValueChange = { title = it
-                           birdNoteViewModel.updateTitle(birdNotes = birdNotes, newTitle = title )
 
                                 }
                         )
                         Spacer(Modifier.size(5.dp))
                         TextField(
-                            value = text,
-                            onValueChange = { text = it
-                                birdNoteViewModel.updateDescription(birdNotes = birdNotes, newDes = text )}
+                            value = description,
+                            onValueChange = { description = it
+                                }
                         )
                     }
                 },
@@ -191,7 +181,12 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
                     ) {
                         Button(
                             modifier = Modifier.fillMaxWidth(),
-                            onClick = { openDialog.value = false }
+                            onClick = { openDialog.value = false
+
+                                birdNoteViewModel.updateBirdnote(BirdNotes(birdNotes.id, birdNotes.pathToPicture, title = title, description = description, birdNotes.entryDate))
+                                // birdNoteViewModel.updateTitle(birdNotes = birdNotes, newTitle = title )
+                               // birdNoteViewModel.updateDescription(birdNotes = birdNotes, newDes = text )
+                                }
                         ) {
                             Text("Save")
                         }

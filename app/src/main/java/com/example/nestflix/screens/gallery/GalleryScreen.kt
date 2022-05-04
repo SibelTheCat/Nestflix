@@ -1,5 +1,6 @@
 package com.example.nestflix.screens.gallery
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -71,6 +72,7 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
     var description by remember { mutableStateOf(birdNotes.description) }
     var title by remember { mutableStateOf(birdNotes.title) }
 
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -105,22 +107,23 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
                     modifier = Modifier.padding( top= 10.dp, end = 10.dp)
                 )
                 Text(buildAnnotatedString {
-                        withStyle(style = SpanStyle(color = androidx.compose.ui.graphics.Color.Blue, fontSize = 12.sp)) {
+                    var datealterd = birdNotes.entryDate.toString().replace("GMT+02:00", "").drop(4)
+
+                    withStyle(style = SpanStyle(color = androidx.compose.ui.graphics.Color.Blue, fontSize = 12.sp)) {
                             append("added: ")
                         }
-                        append("${birdNotes.entryDate}")
+                    withStyle(style = SpanStyle(fontSize = 14.sp)){
+                        append("${datealterd}")}
 
                 }
 
                 )
 
-              //  Text(text = "${birdNotes.description}")
+               // Text(text = "${birdNotes.description}")
 
                 //Das remember geht hier nicht?
 
-                var textForFunktion = birdNotes.description
-
-              ExpandingText(text = textForFunktion, maxExLines =6 )
+              ExpandingText(birdNotes.description, maxExLines =6 )
                 Spacer(Modifier.size(5.dp))
                OutlinedButton(
                    border = BorderStroke(width = 1.dp,color = MaterialTheme.colors.secondary),
@@ -184,8 +187,7 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
                             onClick = { openDialog.value = false
 
                                 birdNoteViewModel.updateBirdnote(BirdNotes(birdNotes.id, birdNotes.pathToPicture, title = title, description = description, birdNotes.entryDate))
-                                // birdNoteViewModel.updateTitle(birdNotes = birdNotes, newTitle = title )
-                               // birdNoteViewModel.updateDescription(birdNotes = birdNotes, newDes = text )
+
                                 }
                         ) {
                             Text("Save")
@@ -205,11 +207,20 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
 }
 
 @Composable
-fun ExpandingText(text: String, maxExLines : Int) {
+    fun ExpandingText(text: String, maxExLines : Int) {
+    Log.d("fun", text)
+
     var isExpanded by remember { mutableStateOf(false) }
+
     val textLayoutResultState = remember { mutableStateOf<TextLayoutResult?>(null) }
     var isClickable by remember { mutableStateOf(false) }
+
     var finalText by remember { mutableStateOf(text) }
+
+    //diese Zuweisung muss gemacht werden, sonst wird der Description Block nicht neu gerendert
+    finalText = text
+    Log.d("fun", finalText)
+
 
     val textLayoutResult = textLayoutResultState.value
     LaunchedEffect(textLayoutResult) {
@@ -249,5 +260,5 @@ fun ExpandingText(text: String, maxExLines : Int) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    DisplayBirdNote(birdNotes = BirdNotes(pathToPicture = "dfasf", title = "Test 1", description = "this bird just sleeps all day hjghghjgjhgjkhghjghjkghjgjghghghjghghjghjghjghjghjghjghghjghjghjghjghjghjgjgkjghj   jkhj hj k hjhj jhj   jhj jh  hjhl jh jhjgjhghgj jgjkgjgjgjk hjkhjlkhkhkhhjjj  jhkljhjhjkh  jhjkhjkh  kjhjkhjkhkjl kjhkjlhjkh jhjkhjkhjkhjkh hjhjkhjhjhlk hjkh jh h jh jh jhjlh  jhkjhjkhkjhlkjhlj khjlhlkhlkjh jhjhjh jhlhj"))
+    DisplayBirdNote(birdNotes = BirdNotes(pathToPicture = "dfasf", title = "Test 1", description = "this bird just sleeps all day"))
 }

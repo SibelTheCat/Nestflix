@@ -100,7 +100,7 @@ fun HomeScreen(navController: NavController = rememberNavController()){
                         modifier = Modifier
                             .clip(CircleShape)
                             .size(170.dp)
-                            .border(width = 2.dp, color = Color.Blue, CircleShape)
+                            .border(width = 2.dp, color = MaterialTheme.colors.primaryVariant, CircleShape)
 
 
                     )

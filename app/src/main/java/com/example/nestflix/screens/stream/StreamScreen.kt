@@ -15,6 +15,7 @@ import android.util.Log
 import android.view.PixelCopy
 import android.view.SurfaceView
 import android.view.View
+import android.view.Window
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -55,8 +56,10 @@ import com.example.nestflix.viewmodel.MediaPlayerViewModel
 import com.kpstv.compose.kapture.ScreenshotController
 import com.kpstv.compose.kapture.attachController
 import com.kpstv.compose.kapture.rememberScreenshotController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.internal.http2.Http2Reader
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
@@ -67,6 +70,8 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 import java.util.*
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 import kotlin.math.roundToInt
 import androidx.compose.runtime.LaunchedEffect as LaunchedEffect
@@ -91,7 +96,8 @@ fun StreamScreen(navController: NavController = rememberNavController(),
     val scope = rememberCoroutineScope()
 
     val view = LocalView.current
-
+    val context = LocalContext.current as Activity
+    val coroutineScope = rememberCoroutineScope()
 
 
     //var jetCaptureView: MutableState<View>? = null
@@ -140,6 +146,13 @@ fun StreamScreen(navController: NavController = rememberNavController(),
             ExtendedFloatingActionButton({
                 Text(text = "Capture Screenshot", color = Color.White)},
                 onClick = {
+
+                    coroutineScope.launch {
+                        val bitmap = context.window.drawToBitmap()
+                        
+                        val x = 0
+                    }
+
 
                     // variante 1 gibt den ganzen Bildschirm aus, da capturingViewBounds = it.boundsInRoot() am Scaffold angehängt wurde
                  /*   val bounds = capturingViewBounds ?: return@ExtendedFloatingActionButton
@@ -307,6 +320,31 @@ fun StreamScreen(navController: NavController = rememberNavController(),
         }}
     }
 
+suspend fun Window.drawToBitmap(
+    config: Bitmap.Config = Bitmap.Config.ARGB_8888,
+    timeoutInMs: Long = 10000
+): Bitmap {
+    var result = PixelCopy.ERROR_UNKNOWN
+    val latch = CountDownLatch(1)
+
+    val bitmap = Bitmap.createBitmap(decorView.width, decorView.height, config)
+    PixelCopy.request(this, bitmap, { copyResult ->
+        result = copyResult
+        latch.countDown()
+    }, Handler(Looper.getMainLooper()))
+
+    var timeout = false
+    withContext(Dispatchers.IO) {
+        runCatching {
+            timeout = !latch.await(timeoutInMs, TimeUnit.MILLISECONDS)
+        }
+    }
+
+    if (timeout) error("Failed waiting for PixelCopy")
+    if (result != PixelCopy.SUCCESS) error("Non success result: $result")
+
+    return bitmap
+}
 
 //https://www.android--code.com/2018/04/android-kotlin-save-image-to-external.html
 // Method to save an image to external storage
@@ -362,7 +400,8 @@ fun getBitMapFromSurfaceView(videoView: SurfaceView, callback: (Bitmap?) -> Unit
         val handlerThread = HandlerThread("PixelCopier");
         handlerThread.start();
         PixelCopy.request(
-            videoView, bitmap,
+            videoView,
+            bitmap,
             PixelCopy.OnPixelCopyFinishedListener { copyResult ->
                 if (copyResult == PixelCopy.SUCCESS) {
                     callback(bitmap)

@@ -2,6 +2,7 @@ package com.example.nestflix
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -64,6 +65,7 @@ class MainActivity : ComponentActivity() {
             DisplayManager.VIRTUAL_DISPLAY_FLAG_OWN_CONTENT_ONLY or DisplayManager.VIRTUAL_DISPLAY_FLAG_PUBLIC
         private var sMediaProjection: MediaProjection? = null
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mProjectionManager =
@@ -81,18 +83,19 @@ class MainActivity : ComponentActivity() {
         setContent {
             NestflixTheme {
                 // A surface container using the 'background' color from the theme
-                val mediaPlayerViewModel : MediaPlayerViewModel by viewModels()
+                val mediaPlayerViewModel: MediaPlayerViewModel by viewModels()
                 NestflixNavigation(mediaPlayerViewModel = mediaPlayerViewModel)
 
-                }
             }
         }
+    }
+
 
     // parameter dazugeschummelt weril startActionForResult activity al parameter will, aber
     //      LocalContext.current as Activity man nur innerhalb einer Composable Funktion aufrufen kann
     //options null sind auch dazugeschrieben
-    fun startProjection(activity: Activity) {
-        ActivityCompat.startActivityForResult(activity, mProjectionManager!!.createScreenCaptureIntent(), REQUEST_CODE, null)
+    fun startProjection() {
+        ActivityCompat.startActivityForResult(this, mProjectionManager!!.createScreenCaptureIntent(), REQUEST_CODE, null)
     }
 
     private fun stopProjection() {

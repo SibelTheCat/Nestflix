@@ -206,6 +206,7 @@ fun DisplayBirdNote(birdNotes: BirdNotes,
     }
 }
 
+//https://proandroiddev.com/expandabletext-in-jetpack-compose-b924ea424774
 @Composable
     fun ExpandingText(text: String, maxExLines : Int) {
     Log.d("fun", text)

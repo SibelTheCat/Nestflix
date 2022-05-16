@@ -46,9 +46,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import androidx.test.runner.screenshot.Screenshot
+import com.example.nestflix.MainActivity
 import com.example.nestflix.R
 import com.example.nestflix.model.BirdNotes
 import com.example.nestflix.viewmodel.BirdNotesViewModel
+import com.example.nestflix.viewmodel.MediaPlayerViewModel
+import com.kpstv.compose.kapture.ScreenshotController
+import com.kpstv.compose.kapture.attachController
+import com.kpstv.compose.kapture.rememberScreenshotController
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import okhttp3.internal.http2.Http2Reader
 import org.videolan.libvlc.LibVLC
 import org.videolan.libvlc.Media
@@ -61,7 +69,7 @@ import java.io.OutputStream
 import java.util.*
 
 import kotlin.math.roundToInt
-
+import androidx.compose.runtime.LaunchedEffect as LaunchedEffect
 
 
 //var mediaPlayer: MediaPlayer? = null
@@ -69,15 +77,21 @@ import kotlin.math.roundToInt
 @Composable
 fun StreamScreen(navController: NavController = rememberNavController(),
                  mediaPlayer: MediaPlayer? = null,
-                 birdNoteViewModel: BirdNotesViewModel = viewModel()
+                 birdNoteViewModel: BirdNotesViewModel = viewModel(),
+                 mediaPlayerViewModel : MediaPlayerViewModel = viewModel()
 ) {
     var mediaPlayer: MediaPlayer? = null
-    var myBirdVideo : View? = null
+    var myBirdVideo : View? = null  //für variante 3
 
     var image : Bitmap? = null
     var text : String = "test"
 
+    val screenshotController = rememberScreenshotController()  //für variante 2
+
+    val scope = rememberCoroutineScope()
+
     val view = LocalView.current
+
 
 
     //var jetCaptureView: MutableState<View>? = null
@@ -98,11 +112,14 @@ fun StreamScreen(navController: NavController = rememberNavController(),
         capturingViewBounds = it.boundsInRoot()
     },
         topBar = {
+
             TopAppBar(backgroundColor = MaterialTheme.colors.primaryVariant, elevation = 3.dp) {
                 Row {
                     Icon(imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Arrow back",
                         modifier = Modifier.clickable {
+                            mediaPlayerViewModel.mediaPlayer?.stop();
+                            mediaPlayerViewModel.mediaPlayer?.detachViews();
                             navController.popBackStack() //go back to last screen
                         })
 
@@ -124,6 +141,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                 Text(text = "Capture Screenshot", color = Color.White)},
                 onClick = {
 
+                    // variante 1 gibt den ganzen Bildschirm aus, da capturingViewBounds = it.boundsInRoot() am Scaffold angehängt wurde
                  /*   val bounds = capturingViewBounds ?: return@ExtendedFloatingActionButton
                         image = Bitmap.createBitmap(
                         bounds.width.roundToInt(), bounds.height.roundToInt(),
@@ -132,7 +150,28 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                         this.translate((-bounds.left), (-bounds.top))
                         view.draw(this)
                     }*/
-                     image = getBitmapFromView(myBirdVideo as VLCVideoLayout)
+
+                    // variante 2 -> sollte eigentlich nur Android View ausgeben, gibt aber auch bootom bar aus
+                    // //https://github.com/KaustubhPatange/kapture
+                    // corotines die man hier braucht -> https://developer.android.com/jetpack/compose/side-effects
+/*
+                    scope.launch {
+                       val bitmap : Result<Bitmap> = screenshotController.captureToBitmap(
+                        config = Bitmap.Config.ARGB_8888)
+                        image = bitmap.getOrNull()
+                    }
+*/
+
+                  // variante 3 -> sollte nur den Teil des Videos ausgeben
+                    //https://hiteshkrsahu.medium.com/a-complete-guide-for-taking-screenshot-in-android-28-bcb9a19a2b6e
+                  //  image = getBitmapFromView(myBirdVideo as VLCVideoLayout)
+
+
+                   // val screenshot = Screenshot.capture()
+                    //val bitmap =  screenshot.bitmap
+                    //image = bitmap
+                    //startProjection()
+                    //MainActivity
                     Log.e("bildtest", image.toString())
 
 
@@ -210,7 +249,8 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                 }
             )
         }
-           // View Model code from:  https://nphau.medium.com/android-how-to-embed-vlc-media-player-to-android-app-1828d34c54f
+           // View Model code from:
+            // and https://lindevs.com/display-progress-dialog-when-rtsp-stream-is-buffering-in-vlc-player-on-android/
             // use AndroidView to use "view"-system based components
             AndroidView(
                 // factory expects a function that gets an Android Context and will return
@@ -218,19 +258,23 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                 // will only be executed at initial rendering and when parent composable
                 // triggers a new execution
                 factory = { context ->  //
-                    VLCVideoLayout(context).apply {
+                    VLCVideoLayout(context).apply{
                         libVLC = LibVLC(context)
-                        mediaPlayer = MediaPlayer(libVLC)
-                        mediaPlayer?.attachViews(this, null, false, false)
+                        mediaPlayerViewModel.mediaPlayer = MediaPlayer(libVLC)
+                        //mediaPlayer = MediaPlayer(libVLC)
+                       // mediaPlayer?.attachViews(this, null, false, false)
+                        mediaPlayerViewModel.mediaPlayer?.attachViews(this, null, false, false)
 
 
                         try {
                             Media(libVLC, Uri.parse(testurl)).apply {
                                 setHWDecoderEnabled(true, false)
-                                mediaPlayer?.media = this
+                               // mediaPlayer?.media = this
+                                mediaPlayerViewModel.mediaPlayer?.media = this
                             }.release()
 
-                            mediaPlayer?.play()
+                           // mediaPlayer?.play()
+                            mediaPlayerViewModel.mediaPlayer?.play()
                         } catch (e: Exception) {
                             Log.e("StreamScreen", e.message!!)
                         }
@@ -242,6 +286,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                     .fillMaxHeight()
                     .fillMaxWidth()
                     .border(BorderStroke(width = 15.dp,color = MaterialTheme.colors.secondary))
+                    .attachController(screenshotController)
                   //  .onGloballyPositioned {
                     //    capturingViewBounds = it.boundsInRoot()
                     //)  }
@@ -294,7 +339,7 @@ fun saveImageToExternalStorage(bitmap:Bitmap?):Uri{
 fun savePictureAsNewBirdnote(path : String, birdNoteViewModel: BirdNotesViewModel){
     birdNoteViewModel.addBirdNote(BirdNotes(pathToPicture = path, title = "", description = ""))}
 
-
+// für Variante 3
     fun getBitmapFromView(view: View): Bitmap? {
         var bitmap =
             Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888)
@@ -304,7 +349,8 @@ fun savePictureAsNewBirdnote(path : String, birdNoteViewModel: BirdNotesViewMode
         return bitmap
     }
 
-
+//noch nicht verwendet-> da ich nicht weiss wie
+// https://hiteshkrsahu.medium.com/a-complete-guide-for-taking-screenshot-in-android-28-bcb9a19a2b6e
 fun getBitMapFromSurfaceView(videoView: SurfaceView, callback: (Bitmap?) -> Unit) {
     val bitmap: Bitmap = Bitmap.createBitmap(
         videoView.width,
@@ -331,4 +377,5 @@ fun getBitMapFromSurfaceView(videoView: SurfaceView, callback: (Bitmap?) -> Unit
         e.printStackTrace()
     }
 }
+
 

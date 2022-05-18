@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -50,9 +51,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.test.runner.screenshot.Screenshot
 import com.example.nestflix.MainActivity
 import com.example.nestflix.R
+import com.example.nestflix.SettingsViewModelFactory
+import com.example.nestflix.manager.SettingsDataStore
 import com.example.nestflix.model.BirdNotes
 import com.example.nestflix.viewmodel.BirdNotesViewModel
 import com.example.nestflix.viewmodel.MediaPlayerViewModel
+import com.example.nestflix.viewmodel.SettingsViewModel
 import com.kpstv.compose.kapture.ScreenshotController
 import com.kpstv.compose.kapture.attachController
 import com.kpstv.compose.kapture.rememberScreenshotController
@@ -83,7 +87,10 @@ import androidx.compose.runtime.LaunchedEffect as LaunchedEffect
 fun StreamScreen(navController: NavController = rememberNavController(),
                  mediaPlayer: MediaPlayer? = null,
                  birdNoteViewModel: BirdNotesViewModel = viewModel(),
-                 mediaPlayerViewModel : MediaPlayerViewModel = viewModel()
+                 mediaPlayerViewModel : MediaPlayerViewModel = viewModel(),
+                 settingsViewModel: SettingsViewModel = viewModel(
+                     factory = SettingsViewModelFactory(SettingsDataStore(LocalContext.current)))
+
 ) {
     var mediaPlayer: MediaPlayer? = null
     var myBirdVideo : View? = null  //für variante 3
@@ -111,7 +118,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
 
     var libVLC: LibVLC?
     // var mediaPlayer: MediaPlayer?
-    val testurl = "rtsp://rtsp.stream/pattern"
+    val testurl = settingsViewModel.ipAddress.observeAsState().value
     //"rtsp://rtsp.stream/pattern"
     //"tcp/h264://10.0.0.134:55555"
     val raspberry = "rtsp://10.0.0.134:3366/stream1"
@@ -151,7 +158,7 @@ fun StreamScreen(navController: NavController = rememberNavController(),
                 onClick = {
 
 
-                    (context as MainActivity).startProjection()
+                  //  (context as MainActivity).startProjection()
 
 
                     //variante Leon -> ganzer Bildschirm no video :(

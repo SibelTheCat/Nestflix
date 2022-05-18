@@ -33,14 +33,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.nestflix.manager.SettingsDataStore
 import com.example.nestflix.navigation.NestflixNavigation
 import com.example.nestflix.ui.theme.NestflixTheme
 import com.example.nestflix.viewmodel.MediaPlayerViewModel
+import com.example.nestflix.viewmodel.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import org.videolan.libvlc.MediaPlayer
 
 
-//dependency container -> we get the dependencies here
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private var mProjectionManager: MediaProjectionManager? = null
@@ -215,6 +220,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 
 @Preview(showBackground = true)

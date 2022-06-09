@@ -10,7 +10,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.REQUEST_COMPANION_START_FOREGROUND_SERVICES_FROM_BACKGROUND" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION" />
-
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".NestflixApplication"

@@ -132,4 +132,16 @@ dependencies {
     implementation "androidx.hilt:hilt-navigation-fragment:1.0.0"
     implementation "androidx.hilt:hilt-navigation-compose:1.0.0-alpha03"
 
+    //screen shot APIs -> none of them work yet for this project
+
+    implementation 'com.jraska:falcon:2.2.0'
+    implementation "dev.shreyaspatil:capturable:1.0.3"
+
+    implementation "com.google.android.exoplayer:exoplayer:$exoplayer_version"
+
 }
+/*compileKotlin {
+    kotlinOptions {
+        languageVersion = "1.4"
+    }
+}*/

@@ -42,7 +42,7 @@ private val _birdNotesLists = MutableStateFlow<List<BirdNotes>>(emptyList())
 
     fun updateBirdnote(birdNotes: BirdNotes)= viewModelScope.launch { repository.updateBirdNote(birdNotes)}
 
-    suspend fun romoveBirdNotes(birdNotes: BirdNotes) = viewModelScope.launch {repository.deleteBirdNote(birdNotes)}
+    fun romoveBirdNotes(birdNotes: BirdNotes) = viewModelScope.launch {repository.deleteBirdNote(birdNotes)}
 
     fun updateTitle(birdNotes: BirdNotes, newTitle : String){
         birdNotes.title = newTitle

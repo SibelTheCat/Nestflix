@@ -1,5 +1,7 @@
 package com.example.nestflix.screens.gallery
 
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
@@ -19,16 +21,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.nestflix.model.BirdNotes
+import com.example.nestflix.navigation.NestflixScreens
 import com.example.nestflix.viewmodel.BirdNotesViewModel
 import com.kpstv.compose.kapture.attachController
 import java.io.File
@@ -60,7 +65,9 @@ fun GalleryScreen(
     ) {
         LazyColumn {
             items(birdnotelist) { bird ->
-                DisplayBirdNote(bird, birdNoteViewModel = birdNoteViewModel)
+                DisplayBirdNote(bird,
+                    birdNoteViewModel = birdNoteViewModel,
+                    onItemClick = { path -> navController.navigate(route = NestflixScreens.DetailScreen.name + "/$path")},)
             }
         }
 
@@ -71,8 +78,9 @@ fun GalleryScreen(
 fun DisplayBirdNote(
     birdNotes: BirdNotes,
     birdNoteViewModel: BirdNotesViewModel = viewModel(),
+    onItemClick: (String)-> Unit = {},
 ) {
-
+    val context = LocalContext.current
     val openDialog = remember { mutableStateOf(false) }
     var description by remember { mutableStateOf(birdNotes.description) }
     var title by remember { mutableStateOf(birdNotes.title) }
@@ -82,7 +90,6 @@ fun DisplayBirdNote(
         modifier = Modifier
             .fillMaxWidth()
             .padding(4.dp),
-        // .clickable { },
 
         shape = RoundedCornerShape(corner = CornerSize(15.dp)),
         elevation = 4.dp
@@ -97,6 +104,9 @@ fun DisplayBirdNote(
                     .size(200.dp, 150.dp)
                     //.size(170.dp)
                     .border(width = 2.dp, color = MaterialTheme.colors.secondary)
+                        //https://developer.android.com/training/sharing/send
+                    .clickable { onItemClick(birdNotes.id.toString())
+                    }
             )
 
             Column(modifier = Modifier
@@ -142,7 +152,27 @@ fun DisplayBirdNote(
                     ) {
                         Text("Edit", fontSize = 10.sp)
                     }
-                    Spacer(Modifier.size(35.dp))
+                    Spacer(Modifier.size(5.dp))
+                    OutlinedButton(
+                        border = BorderStroke(width = 1.dp, color = MaterialTheme.colors.secondary),
+                        onClick = {  val shareIntent: Intent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_STREAM, Uri.parse(birdNotes.pathToPicture))
+                            putExtra(Intent.EXTRA_TEXT, birdNotes.title)
+                            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            type = "image/jpeg"
+                        }
+                            startActivity(context, Intent.createChooser(shareIntent, null), null)
+
+                         },
+                        contentPadding = PaddingValues(0.dp),
+                        modifier = Modifier.defaultMinSize(minWidth = ButtonDefaults.MinWidth,
+                            minHeight = 12.dp)
+
+                    ) {
+                        Text("Share", fontSize = 10.sp)
+                    }
+                    Spacer(Modifier.size(5.dp))
                     IconButton(onClick = {
                         birdNoteViewModel.romoveBirdNotes(birdNotes)
 
@@ -197,7 +227,7 @@ fun DisplayBirdNote(
                             onClick = {
                                 openDialog.value = false
 
-                                birdNoteViewModel.updateBirdnote(BirdNotes(birdNotes.id,
+                                    birdNoteViewModel.updateBirdnote(BirdNotes(birdNotes.id,
                                     birdNotes.pathToPicture,
                                     title = title,
                                     description = description,
@@ -273,6 +303,31 @@ fun ExpandingText(text: String, maxExLines: Int) {
 
         )
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @Preview(showBackground = true)

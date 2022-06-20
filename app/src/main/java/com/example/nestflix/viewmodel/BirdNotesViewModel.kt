@@ -35,7 +35,6 @@ private val _birdNotesLists = MutableStateFlow<List<BirdNotes>>(emptyList())
 
                 }
         }
-      //  birdNotesList.add(BirdNotes(pathToPicture = "/storage/emulated/0/Pictures/d043bbdf-a3ab-41c0-aa70-543fdad5b370.jpg", title = "Test 1", description = "this bird just sleeps all day"))
     }
 
     fun addBirdNote(birdNotes: BirdNotes) = viewModelScope.launch {repository.addBirdNote(birdNotes)}

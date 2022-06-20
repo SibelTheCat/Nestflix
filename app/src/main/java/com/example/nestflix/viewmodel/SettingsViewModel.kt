@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.nestflix.manager.SettingsDataStore
 import kotlinx.coroutines.launch
 
-
+//https://www.youtube.com/watch?v=4D8dVPeWxIs
 class SettingsViewModel(
     private val settingsDataStore: SettingsDataStore
 )  : ViewModel(){

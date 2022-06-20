@@ -4,5 +4,6 @@ enum class NestflixScreens {
     HomeScreen,
     GalleryScreen,
     SetupScreen,
-    StreamScreen
+    StreamScreen,
+    DetailScreen
 }

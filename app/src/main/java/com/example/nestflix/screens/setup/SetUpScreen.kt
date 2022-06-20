@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -147,7 +148,7 @@ fun DataStoreInput(
                 text = "Your saved IP Address is:\r\n ${getIPAddress!!}",
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                fontSize = 20.sp
+                fontSize = 4.em,
             )
         }
     }
